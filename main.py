@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pycaret
 from pycaret.classification import *
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
 
 data = pd.read_csv(r"C:\Users\User\PycharmProjects\diabetes-data-analysis\diabetes_prediction_dataset.csv")
 data.info()
@@ -78,4 +81,21 @@ plt.tight_layout()
 plt.show() """
 
 
+data_m = data.copy()
+
+setup = setup(data_m, target='diabetes', session_id=123)
+model = compare_models()
+
+plot_model(model, plot='feature')
+# plt.show()
+
+X = data.drop('diabetes', axis=1)
+y = data['diabetes']
+encoded = pd.get_dummies(X[['smoking_history', 'gender']], drop_first=True)
+X = pd.concat([X.drop(['gender', 'smoking_history'], axis=1), encoded], axis=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=123)
+
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+print(classification_report(y_test, predictions))
 
